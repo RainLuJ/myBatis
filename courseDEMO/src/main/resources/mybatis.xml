@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+                            <!--myBatis主配置文件-->
+<configuration>
+                           <!--控制mybatis全局行为-->
+
+    <!--指定properties文件的位置，类路径的根目录下寻找文件-->
+    <properties resource="jdbc.properties" />
+
+    <settings>
+        <!--设置mybatis在控制台上输出日志-->
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+    </settings>
+
+
+                               <!-- 定义别名：两种方式 -->
+                          <!--定义后的别名，是不区分大小写的-->
+    <typeAliases>
+        <!--第一种方式-->
+        <!--可以指定一个类型一个自定义别名
+            type：自定义类型的全限定名称
+            alias：别名（特点：短小、容易记忆）
+        -->
+        <typeAlias type="com.lujun61.entity.Student" alias="stu" /><!--一行就定义一个别名-->
+
+        <!--第二种方式-->
+        <!--
+            可以指定多个类型的别名
+            name中写【包名】，这个包中的所有类，【类名】就是别名（不区分大小写了）
+        -->
+        <package name="com.lujun61.entity"/>
+    </typeAliases>
+
+    <!--PageHelper插件导入-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor" />
+    </plugins>
+
+    <!--
+        配置数据库连接环境
+            default：使用哪个数据库环境配置信息，就写哪个的id
+    -->
+    <environments default="myDEV">
+        <!--id：唯一值，自定义的环境配置信息名称-->
+        <environment id="myDEV">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.user}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--sql mapper（sql映射文件）的位置-->
+    <mappers>
+        <!--       第一种方式：指定多个mapper映射文件
+            一个mapper标签指定一个文件的位置
+            从类路径开始的路径信息。 类路径：target/classes
+        -->
+        <mapper resource="com/lujun61/dao/StudentDAO.xml"/>
+
+        <!--            第二种方式： 使用包名
+            name: xml文件（mapper文件）所在的包名, 这个包中所有xml文件一次都能加载给mybatis
+            使用package的要求：
+             1. mapper文件名称需要和接口名称一样， 区分大小写的一样
+             2. mapper文件和dao接口需要在同一目录
+        -->
+        <package name="com.lujun61.dao"/>
+    </mappers>
+</configuration>

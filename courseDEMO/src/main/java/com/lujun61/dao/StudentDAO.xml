@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--sql映射文件-->
+
+<!--
+    sql映射文件：写sql语句的，mybatis会执行这些sql语句
+
+    1、指定约束文件：
+        <!DOCTYPE mapper
+            PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+            mybatis-3-mapper.dtd是约束文件的名称，扩展名为【.dtd】
+
+    2、约束文件作用：
+        检查在当前映射文件中出现的标签是否符合mybatis的要求
+
+    3、mapper是当前文件的根标签
+      namespace中的字符串是自定义的，其中写上【所映射接口的全限定名称】
+
+    4、在当前文件中，使用规定好的标签，来对数据库执行操作
+        <select>：表示查询语句
+        <update>：表示更新数据库的指定内容
+        <insert>：表示插入数据至数据库中
+        <delete>：表示删除数据库中指定的内容
+
+    5、DAO接口中不要使用重载方法！！！会徒增维护烦恼！！！
+-->
+<mapper namespace="com.lujun61.dao.StudentDAO">
+
+    <!--
+        select：表示查询操作
+        id：具有唯一值，与dao接口中的目标方法名称对应
+
+        resultType：是指SQL语句执行完毕后，所得到的结果将要转为哪个类型对象的【属性】
+                    （也可以看做接口中【方法的返回值类型】或者【集合的'<>'中的类型】）
+            =>mybatis遍历ResultSet，最终得到的结果类型【全限定名称】
+            *****mybatis内部处理方式：*****
+                <==
+                    mybatis执行SQL语句，得到ResultSet
+                    mybatis调用resultType中对应类的无参数构造方法，创建对象
+                    mybatis把ResultSet中的【列值】赋值给所创建的对象中同名的属性
+                    mybatis把对象存入到 List集合 中返回
+                        或者
+                    存入到 单个对象 中返回
+                ==>
+    -->
+    <select id="selectStudent" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student order by id
+    </select>
+
+    <insert id="insertStudent">
+        insert into student.student values(#{id},#{name},#{email},#{age})
+    </insert>
+
+    <!--参数类型parameterType：可以不写。反射机制会搞定一切！-->
+    <!--
+        parameterType：dao接口中方法参数的数据类型
+            其值类型为：java的数据类型【全限定名称】或者是mybatis定义的【别名】
+    -->
+    <select id="selectStudentById" parameterType="java.lang.Integer" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where id=#{parameterId}
+    </select>
+
+    <!--
+        使用@param注解，传入多个参数
+    -->
+    <select id="seleceStudentByAnnotation" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where id=#{annotateId} or name=#{annotateName}
+    </select>
+
+    <!--
+        使用java对象，传入多个参数
+
+            语法：
+                #{属性名,javaType=java中的数据类型,jdbc中的数据类型}
+
+                例如：
+                #{属性名,javaType=java.lang.Integer,jdbcType=Integer}
+        select id,name,email,age from student where
+        id=#{id,javaType=java.lang.Integer,jdbcType=INTEGER}
+        or
+        name=#{name,javaType=java.lang.String,jdbcType=VARCHAR}
+
+            但是在开发中【使用最多】的形式是：
+                #{属性名}；关于javaType和jdbcType是什么，反射机制会给出答案！
+    -->
+    <select id="seleceStudentByObj" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where id=#{id} or name=#{name}
+    </select>
+
+    <!--
+        按位置传参
+            最不好用；容易出错
+            #{arg0}、#{arg1}……中的 argXXX 代表参数在列表中的位置
+
+            扩展：
+                mybatis3.4之前的版本使用格式为：#{0}、#{1}……
+    -->
+                        <!--使用com.lujun61.entity.Student的别名：stu/STU（不区分大小写）-->
+    <select id="seleceStudentByPosit" resultType="stu">
+    <!--<select id="seleceStudentByPosit" resultType="com.lujun61.entity.Student">-->
+        select id,name,email,age from student.student where id=#{arg0} or name=#{arg1}
+    </select>
+
+
+    <!--
+        map传参
+            map中key的名称即为#{}中的值
+    -->
+    <select id="seleceStudentByMap" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where id=#{id} or name=#{name}
+    </select>
+
+
+    <!--返回值只有一个-->
+    <!--<select id="countStudent" resultType="java.lang.int">-->
+    <!--<select id="countStudent" resultType="java.lang._int">-->
+    <select id="countStudent" resultType="java.lang.Integer">
+        select count(*) from student.student
+    </select>
+
+
+    <!--返回值为Map类型：
+            列名是map的key
+            列值是map的value
+
+        注意：返回结果最多只能有一行！！！
+    -->
+    <select id="selectMap" resultType="java.util.HashMap">
+        select id,name,email,age from student.student where id=#{id}
+    </select>
+
+
+
+                     <!--列名与属性名不一致时的解决方案-->
+                 <!--resultType与resultMap不能一起用！！！-->
+                               <!--resultMap-->
+              <!--作用：当列名与属性名不一致时，可以人为指定赋值关系-->
+                   <!--这是列名与属性名不一致时的解决方案（1）-->
+    <!--首先要定义一个resultMap
+            id：自定义名称，表示你定义的这个resultMap的唯一标识
+            type：java类型的全限定名称
+    -->
+    <resultMap id="studentMap" type="com.lujun61.entity.People">
+        <!--ResultSet中列名和对应的java对象中属性的关系-->
+
+        <!--主键列：使用id标签
+            column：列名
+            property：java类型的属性名
+        -->
+        <id column="id" property="pId"/>
+
+        <!--非主键列：使用result标签
+            column：列名
+            property：java类型的属性名
+        -->
+        <result column="name" property="pName"/>
+        <result column="age" property="pAge"/>
+        <result column="email" property="pEmail"/>
+    </resultMap>
+    <select id="selectResultMap" resultMap="studentMap">
+        select id,name,email,age from student.student
+    </select>
+
+
+                  <!--这是列名与属性名不一致时的解决方案（2）-->
+           <!--
+               resultType的默认赋值原则是：同名的列值赋值给同名的属性
+                   *****所以这里的解决方案就是给列值起别名*****
+           -->
+    <select id="selectResultType" resultType="com.lujun61.entity.People">
+        select id as pId,name as pName,email as pEmail,age as pAge from student.student
+    </select>
+
+
+
+
+                                 <!--模糊查询-->
+    <!--在使用java语句调用时【传值（字段）】-->
+    <select id="likeQueryJava" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where name like #{name}
+    </select>
+
+    <!--由myBatis负责拼接传入的字段-->
+    <select id="likeQuerySQL" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where name like '%' #{name} '%'
+    </select>
+
+
+
+                             <!--代码片段复用-->
+    <sql id="stuSQL">
+        select id,name,email,age from student.student
+    </sql>
+
+                                 <!--动态SQL-->
+                               <!-- <if>标签 -->
+    <!--
+        对于该标签的执行，当 test 的值为 true 时，
+        会将其包含的 SQL 片断拼接到其所在的 SQL 语句中。
+        ***** 语法：<if test="条件"> sql 语句的部分 </if> *****
+    -->
+    <select id="selectQueryByDynamicSQLIf" resultType="com.lujun61.entity.Student">
+        <include refid="stuSQL"/> where 1=1
+        <if test="name!=null and name!=''">
+            and name=#{name}
+        </if>
+        <if test="id>0">
+            or id=#{id}
+        </if>
+    </select>
+
+
+                                  <!--动态SQL-->
+                               <!-- <where>标签 -->
+    <!--
+        使用<where/>标签，在有满足条件的【查询条件】时，可以自动添加上 where 子句；
+        【没有满足条件的查询条件】时，不会添加where 子句。
+        需要注意的是，第一个<if/>标签中的 SQL 片断，可以不包含 and。不过，写上 and 也不错，
+        系统会将多出的 and 去掉。但其它<if/>中 SQL 片断的 and必须要求写上。否则 SQL 语句将拼接出错
+        ***** 语法：<where> 其他动态 sql </where> *****
+    -->
+    <select id="selectQueryByDynamicSQLWhere" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student
+        <where>
+            <if test="name != null and name != ''">
+                name=#{name}
+            </if>
+            <if test="id>0">
+               or id=#{id}
+            </if>
+        </where>
+    </select>
+
+
+                                <!--动态SQL-->
+                             <!-- <where>标签 -->
+    <!--
+        <foreach/>标签用于实现对于数组与集合的遍历。对其使用，需要注意：
+            collection 表示要遍历的集合类型, list ，array 等。
+            open、close、separator 为对遍历内容的 SQL 拼接。
+        
+        ➢ collection:表示接口中的方法参数的类型，如果是数组使用array , 如果是list集合使用list
+	    ➢ item:自定义的，表示数组和集合【成员】的变量
+	    ➢ open:循环开始是的字符
+	    ➢ close:循环结束时的字符
+        ➢ separator:集合成员之间的分隔符
+    -->
+    <select id="selectQueryByDynamicSQLForeach1" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student
+        <if test="list != null and list.size > 0">
+            where id in
+            <foreach collection="list" item="stuid" open="(" close=")" separator=",">
+                #{stuid}
+            </foreach>
+        </if>
+    </select>
+
+<!--    <select id="selectQueryByDynamicSQLForeach2" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student where id in
+        <foreach collection="list" item="stu" open="(" close=")" separator=",">
+            #{stu.id}
+        </foreach>
+    </select>-->
+                            <!--更灵活/巧妙的写法-->
+    <select id="selectQueryByDynamicSQLForeach2" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student where id in (
+        <foreach collection="list" item="stu">
+            #{stu.id},
+        </foreach>
+           -1)
+    </select>
+
+
+    <select id="selectAllLimit" resultType="com.lujun61.entity.Student">
+        select id,name,email,age from student.student
+    </select>
+</mapper>

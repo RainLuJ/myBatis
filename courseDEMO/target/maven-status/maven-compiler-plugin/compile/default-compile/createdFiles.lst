@@ -1,0 +1,8 @@
+com\lujun61\proxyDAO\ProxyImpl.class
+com\lujun61\sqlLanguage\updateTest.class
+com\lujun61\sqlLanguage\selectTest.class
+com\lujun61\traditionImplDAO\Test.class
+com\lujun61\entity\People.class
+com\lujun61\dao\StudentDAO.class
+com\lujun61\traditionImplDAO\StudentDAOImpl.class
+com\lujun61\entity\Student.class
