@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-                                <!--sql映射文件-->
+
+<!--sql映射文件-->
 
 <!--
     sql映射文件：写sql语句的，mybatis会执行这些sql语句
@@ -25,12 +29,6 @@
 
     5、DAO接口中不要使用重载方法！！！会徒增维护烦恼！！！
 -->
-
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-
 <mapper namespace="com.lujun61.dao.StudentDAO">
 
     <!--
@@ -58,6 +56,14 @@
         insert into student.student values(#{id},#{name},#{email},#{age})
     </insert>
 
+    <update id="updateStudent">
+        update student.student set age=#{age} where id=#{id}
+    </update>
+
+    <delete id="deleteStudent">
+        delete from student.student where id=#{id}
+    </delete>
+
     <!--参数类型parameterType：可以不写。反射机制会搞定一切！-->
     <!--
         parameterType：dao接口中方法参数的数据类型
@@ -82,15 +88,18 @@
 
                 例如：
                 #{属性名,javaType=java.lang.Integer,jdbcType=Integer}
+
+        <==   SQL语句：未简写版
         select id,name,email,age from student where
         id=#{id,javaType=java.lang.Integer,jdbcType=INTEGER}
         or
         name=#{name,javaType=java.lang.String,jdbcType=VARCHAR}
-
+        ==>
             但是在开发中【使用最多】的形式是：
                 #{属性名}；关于javaType和jdbcType是什么，反射机制会给出答案！
     -->
     <select id="seleceStudentByObj" resultType="com.lujun61.entity.Student">
+        /* 这是简写的SQL语句 */
         select id,name,email,age from student.student where id=#{id} or name=#{name}
     </select>
 
@@ -171,7 +180,7 @@
 
                   <!--这是列名与属性名不一致时的解决方案（2）-->
            <!--
-               resultType的默认赋值原则是：同名的列值赋值给同名的属性
+               resultType的默认赋值原则是：【同名的列值】赋值给【同名的属性】
                    *****所以这里的解决方案就是给列值起别名*****
            -->
     <select id="selectResultType" resultType="com.lujun61.entity.People">

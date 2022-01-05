@@ -15,6 +15,12 @@ public interface StudentDAO {
     //插入学生信息
     int insertStudent(Student stu);
 
+    //更新学生信息
+    int updateStudent(Student stu);
+
+    //删除信息
+    int deleteStudent(Student stu);
+
     //根据学生id查询Student表中的对应学生
     Student selectStudentById(Integer id);
 

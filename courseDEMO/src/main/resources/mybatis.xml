@@ -65,11 +65,11 @@
         <mapper resource="com/lujun61/dao/StudentDAO.xml"/>
 
         <!--            第二种方式： 使用包名
-            name: xml文件（mapper文件）所在的包名, 这个包中所有xml文件一次都能加载给mybatis
+            name: xml文件（mapper文件）所在的包名, 这个包中所有的【xml文件】能一次性的加载给mybatis
             使用package的要求：
              1. mapper文件名称需要和接口名称一样， 区分大小写的一样
              2. mapper文件和dao接口需要在同一目录
         -->
-        <package name="com.lujun61.dao"/>
+        <!--<package name="com.lujun61.dao"/>-->
     </mappers>
 </configuration>

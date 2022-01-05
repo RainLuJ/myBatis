@@ -26,6 +26,17 @@ public class ProxyImpl {
             System.out.println(stu);
         }
 
+        Student stuUpdate = new Student();
+        stuUpdate.setId(1);
+        stuUpdate.setAge(50);
+        int updateNum = dao.updateStudent(stuUpdate);
+        System.out.println(updateNum);
+
+        Student stuDel = new Student();
+        stuDel.setId(666);
+        stuDel.setAge(50);
+        int deleteStudent = dao.deleteStudent(stuDel);
+        System.out.println(deleteStudent);
 
         Student lisi = dao.seleceStudentByAnnotation(2, "李四");
         System.out.println(lisi);

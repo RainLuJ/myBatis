@@ -46,6 +46,16 @@ public class StudentDAOImpl implements StudentDAO {
     }
 
     @Override
+    public int updateStudent(Student stu) {
+        return 0;
+    }
+
+    @Override
+    public int deleteStudent(Student stu) {
+        return 0;
+    }
+
+    @Override
     public Student selectStudentById(Integer id) {
         SqlSession sqlSession = factory.openSession(true);
         String sqlId = "com.lujun61.dao.StudentDAO.selectStudentById";
