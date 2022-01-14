@@ -196,11 +196,15 @@
         select id,name,email,age from student.student where name like #{name}
     </select>
 
+
+   <!--记住这两种格式
+         like '%' #{name} '%'  与  like '% ${name} %'
+   -->
+
     <!--由myBatis负责拼接传入的字段-->
     <select id="likeQuerySQL" resultType="com.lujun61.entity.Student">
         select id,name,email,age from student.student where name like '%' #{name} '%'
     </select>
-
 
 
                              <!--代码片段复用-->
