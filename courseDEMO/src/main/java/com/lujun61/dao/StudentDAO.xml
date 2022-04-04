@@ -128,8 +128,8 @@
 
 
     <!--返回值只有一个-->
-    <!--<select id="countStudent" resultType="java.lang.int">-->
-    <!--<select id="countStudent" resultType="java.lang._int">-->
+    <!--<select id="countStudent" resultType="int">-->
+    <!--<select id="countStudent" resultType="_int">-->
     <select id="countStudent" resultType="java.lang.Integer">
         select count(*) from student.student
     </select>
@@ -159,13 +159,13 @@
     <resultMap id="studentMap" type="com.lujun61.entity.People">
         <!--ResultSet中列名和对应的java对象中属性的关系-->
 
-        <!--主键列：使用id标签
+        <!--主键列：使用id标签!!!
             column：列名
             property：java类型的属性名
         -->
         <id column="id" property="pId"/>
 
-        <!--非主键列：使用result标签
+        <!--非主键列：使用result标签!!!
             column：列名
             property：java类型的属性名
         -->
@@ -198,7 +198,9 @@
 
 
    <!--记住这两种格式
-         like '%' #{name} '%'  与  like '% ${name} %'
+         like '%' #{name} '%'    无sql注入的风险
+            与
+         like '% ${name} %'      有sql注入的风险
    -->
 
     <!--由myBatis负责拼接传入的字段-->
