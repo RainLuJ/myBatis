@@ -1,6 +1,6 @@
                             这是第一个MyBatis入门例子
 实现步骤：
-    1、加入mybatis坐标、mysql驱动的坐标。
+    1、加入mybatis、mysql驱动的依赖。
 
     2、根据数据库中的数据创建实体类。
 
@@ -13,8 +13,8 @@
 
     5、创建mybatis的主配置文件：
         一个项目就是一个主配置文件。
-        主配置文件提供了数据库的连接信息和sql映射文件的位置信息。
-        1）写在main\resources目录之下
-        2）文件名自定义
+        主配置文件提供了 数据库的连接信息 和 sql映射文件的位置 信息……
+        1）写在main/resources目录之下
+        2）文件名自定义。一般写成《mybatis-config.xml》
 
     6、创建使用mybatis类：通过mybatis访问数据库。

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/DynamicMapper/DynamicMapper.iml" filepath="$PROJECT_DIR$/DynamicMapper/DynamicMapper.iml" />
       <module fileurl="file://$PROJECT_DIR$/courseDEMO/courseDEMO.iml" filepath="$PROJECT_DIR$/courseDEMO/courseDEMO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parseXml/parseXml.iml" filepath="$PROJECT_DIR$/parseXml/parseXml.iml" />
     </modules>
   </component>
 </project>

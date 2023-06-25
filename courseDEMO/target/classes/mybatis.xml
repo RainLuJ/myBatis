@@ -4,10 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
                             <!--myBatis主配置文件-->
+
+                                <!--
+                                    主要包含内容：
+                                        ➢ 定义别名
+                                        ➢ 数据源
+                                        ➢ mapper文件存放的地方
+                                -->
+<!-- 根标签，表示配置信息 -->
 <configuration>
                            <!--控制mybatis全局行为-->
 
-    <!--指定properties文件的位置，类路径的根目录下寻找文件-->
+    <!--
+        指定自定义配置文件《 .properties文件 》的存放位置。
+        小细节：凡是看见了resource这个单词，都是指从当前项目的类路径下寻找文件。
+    -->
     <properties resource="jdbc.properties" />
 
     <settings>
@@ -17,7 +28,7 @@
 
 
                                <!-- 定义别名：两种方式 -->
-                          <!--定义后的别名，是不区分大小写的-->
+                          <!-- 定义后的别名，是【不区分大小写】的 -->
     <typeAliases>
         <!--第一种方式-->
         <!--可以指定一个类型一个自定义别名
@@ -36,33 +47,144 @@
 
     <!--PageHelper插件导入-->
     <plugins>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor" />
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!--  helperDialect属性指定了数据库的方言 -->
+            <property name="helperDialect" value="mysql"/>
+        </plugin>
     </plugins>
 
     <!--
-        配置数据库连接环境
-            default：使用哪个数据库环境配置信息，就写哪个的id
+        配置数据库连接环境：可以是多环境配置……  就是配置多个<environment>……</environment>
+            default：默认使用的数据库环境配置信息。
+
+            当使用以下方法获取factory对象时，如果没有指定使用的environmentId，就会使用default中的environment。
+            如果指定了，就会使用指定的environment配置信息。
+            SqlSessionFactory factory = builder.build(in:InputStream, environmentId:String);
     -->
     <environments default="myDEV">
         <!--id：唯一值，自定义的环境配置信息名称-->
         <environment id="myDEV">
+            <!--                                  mybatis的事务管理                             -->
+            <!--
+                1.type属性的值有两个（不区分大小写）：
+                    JDBC(jdbc)
+                    MANAGED(managed)
+                分别代表mybatis提供的两种事务管理机制：
+                    第一种：JDBC事务管理器
+                    第二种：MANAGED事务管理器
+
+                在mybatis中提供了一个事务管理器接口：Transaction
+                    该接口下有两个实现类：
+                        JdbcTransaction
+                        ManagedTransaction
+                    如果type="JDBC"，那么底层会实例化 JdbcTransaction 对象。
+                    如果type="MANAGED"，那么底层会实例化 ManagedTransaction
+
+                2.JDBC事务管理器：底层创建的事务管理器对象：JdbcTransaction对象。
+                    注意，在JDBC中的事务机制是：
+                        如果没有在JDBC代码中执行：conn.setAutoCommit(false); 的话，默认的autoCommit是true。
+
+                    mybatis框架自己管理事务（采用原生的JDBC）
+                    ——开启事务——————————————————————————————————————————
+                        conn.setAutoCommit(false); 开启事务(默认)。<====> openSession();/openSession(false);
+                        ....业务处理...
+                        conn.commit(); 手动提交事务。
+                    ——开启事务——————————————————————————————————————————
+
+                    ——关闭事务——————————————————————————————————————————
+                        conn.setAutoCommit(true); 关闭事务。<====> openSession(true);
+                        ....业务处理...
+                        自动提交事务。只要执行任意一条DML语句就提交一次。
+                    ——关闭事务——————————————————————————————————————————
+
+                3.MANAGED事务管理器：底层创建的事务管理器对象：ManagedTransaction对象。
+                    mybatis不再负责事务的管理了。事务管理交给其它的容器来负责。例如：spring……
+                    对于我们当前单纯的只有mybatis的情况下，如果配置为：MANAGED，
+                    那么事务这块是没人管的。没有人管理事务就表示【事务压根没有开启】。
+            -->
             <transactionManager type="JDBC"/>
+            <!--<transactionManager type="MANAGED"/>   -->
+
+            <!--                                  配置数据源                                    -->
+            <!--
+                dataSource配置：
+                    1.dataSource被称为数据源。
+                    2.dataSource作用是什么？为程序提供Connection对象。（但凡是给程序提供Connection对象的，都叫做数据源。）
+                    3.数据源实际上是一套规范。JDK中有这套规范：javax.sql.DataSource（这个数据源的规范，这套接口实际上是JDK规定的。）
+                    4.我们自己也可以编写数据源组件，只要实现javax.sql.DataSource接口就行了。实现接口当中所有的方法。这样就有了自己的数据源。
+                    比如你可以写一个属于自己的数据库连接池（数据库连接池是提供连接对象的，所以数据库连接池就是一个数据源）。
+                    5.常见的数据源组件有哪些呢【常见的数据库连接池有哪些呢】？
+                        阿里巴巴的德鲁伊连接池：druid
+                        c3p0
+                        dbcp
+                        ....
+                    6. type属性用来指定数据源的类型，就是指定具体使用什么方式来获取Connection对象：
+                        type属性有三个值：必须是三选一。
+                        type="[UNPOOLED|POOLED|JNDI]"
+
+                        UNPOOLED：不使用数据库连接池技术。每一次请求过来之后，都是创建新的Connection对象。
+                            采⽤传统的获取连接的⽅式，虽然也实现了javax.sql.DataSource接⼝，但是并没有使⽤池的思想。
+
+                        POOLED：使用mybatis自己实现的数据库连接池。
+                            采⽤传统的javax.sql.DataSource规范中的连接池，mybatis中有针对规范的实现。
+
+                        JNDI：集成其它第三方的数据库连接池。
+                            采⽤服务器提供的JNDI技术实现，来获取DataSource对象。
+                            不同的服务器所能拿到DataSource是不⼀样。如果不是web或者maven的war⼯程，JNDI是不能使⽤的。
+
+
+                        JNDI是一套规范。谁实现了这套规范呢？大部分的web容器都实现了JNDI规范：
+                            例如：Tomcat、Jetty、WebLogic、WebSphere，这些服务器(容器)都实现了JNDI规范。
+                        JNDI是：java命名目录接口。Tomcat服务器实现了这个规范。
+            -->
             <dataSource type="POOLED">
                 <property name="driver" value="${jdbc.driver}"/>
                 <property name="url" value="${jdbc.url}"/>
                 <property name="username" value="${jdbc.user}"/>
                 <property name="password" value="${jdbc.password}"/>
+
+                <!--
+                    提醒：正常使用连接池的话，池中有很多参数是需要设置的。设置好参数，可以让连接池发挥的更好。事半功倍的效果。
+                    具体连接池当中的参数如何配置呢？需要反复的根据当前业务情况进行测试。
+                -->
+                <!--
+                    poolMaximumActiveConnections：连接池当中最多的正在使用的连接对象的数量上限。最多有多少个连接可以活动。默认值10。
+                    超过了，就等待……
+                -->
+                <property name="poolMaximumActiveConnections" value="10"/>
+                <!--每隔 2 秒打印日志，并且尝试获取连接对象：为了表示当前是在尝试获取连接对象，而不是出错造成的异常等待-->
+                <property name="poolTimeToWait" value="2000"/>
+                <!--超时时间的设置：强行让某个超时未使用的连接空闲-->
+                <property name="poolMaximumCheckoutTime" value="10000"/>
+                <!--最多的空闲数量，多了就先杀死-->
+                <property name="poolMaximumIdleConnections" value="5"/>
+                <!-- 更多配置，请参照官方文档…… -->
             </dataSource>
         </environment>
     </environments>
 
-    <!--sql mapper（sql映射文件）的位置-->
+    <!--sql mapper（sql映射文件xxxMapper.xml）的位置-->
     <mappers>
         <!--       第一种方式：指定多个mapper映射文件
             一个mapper标签指定一个文件的位置
             从类路径开始的路径信息。 类路径：target/classes
         -->
         <mapper resource="com/lujun61/dao/StudentDAO.xml"/>
+
+        <!-- <mapper></mapper>标签参数解析：
+            <mapper resource=""/>：从类路径开始的路径-一个标签一个mapper映射文件
+            <mapper url=""/>：使用绝对路径-一个标签一个mapper映射文件。例如：file:///d:/CarMapper.xml
+            <mapper class=""/>：XML文件必须和接口放在一起。并且XML文件的名字必须和mapper接口的全限定名称一致。
+                                其实本质就是在搜寻mapper接口的同时，如果XML文件名与mapper接口名放在一起，
+                                那么，顺带的就可以被扫描到。
+        -->
+
+        <!--         提醒！！！！！！！！！！！！！！！！！！！！！！！
+            在IDEA的resources目录下新建多重目录的话，必须是这样创建：
+                【com/lujun61/mybatis/mapper】
+            不能这样：
+                com.lujun61.mybatis.mapper：这样去创建directory，只会创建一个一级目录
+        -->
 
         <!--            第二种方式： 使用包名
             name: xml文件（mapper文件）所在的包名, 这个包中所有的【xml文件】能一次性的加载给mybatis
@@ -71,5 +193,6 @@
              2. mapper文件和dao接口需要在同一目录
         -->
         <!--<package name="com.lujun61.dao"/>-->
+
     </mappers>
 </configuration>

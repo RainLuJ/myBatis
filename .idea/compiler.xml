@@ -6,11 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="parseXml" />
         <module name="courseDEMO" />
+        <module name="DynamicMapper" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="courseDEMO" target="1.8" />
+      <module name="DynamicMapper" target="8" />
+      <module name="parseXml" target="1.8" />
       <module name="Test01" target="1.7" />
     </bytecodeTargetLevel>
   </component>

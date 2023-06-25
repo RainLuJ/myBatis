@@ -87,6 +87,11 @@ public class StudentDAOImpl implements StudentDAO {
     }
 
     @Override
+    public Map<Long, Map<String, Object>> selectAllRetMap() {
+        return null;
+    }
+
+    @Override
     public List<People> selectResultMap() {
         return null;
     }
@@ -109,6 +114,11 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<Student> selectAllLimit() {
         return null;
+    }
+
+    @Override
+    public int insertCarUseGeneratedKeys(Student stu) {
+        return 0;
     }
 
     @Override
@@ -138,6 +148,11 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public Student seleceStudentByAnnotation(Integer id, String name) {
+        return null;
+    }
+
+    @Override
+    public Student selectStudentUseObjAndNormalVar(Student stu, String id) {
         return null;
     }
 }
